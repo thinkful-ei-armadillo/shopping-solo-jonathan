@@ -3,10 +3,10 @@
 // shopping list dictionary
 const STORE = {
   items: [
-    {name: 'apples', checked: false, edited: false},
-    {name: 'oranges', checked: false, edited: false},
-    {name: 'milk', checked: true, edited: false},
-    {name: 'bread', checked: false, edited: false}
+    {name: 'apples', checked: false},
+    {name: 'oranges', checked: false},
+    {name: 'milk', checked: true},
+    {name: 'bread', checked: false}
 ],
 hideCompleted: false,
 searchTerm: '',
@@ -27,26 +27,19 @@ function generateItemElement(item, itemIndex, template) {
         <button class="shopping-item-delete js-item-delete">
             <span class="button-label">delete</span>
         </button>
-        <button class="shopping-item-edit js-item-edit">
-          <span class="button-label">edit</span>
-        </button>
       </div>
     </li>`;
 }
 
 // return string for insert into DOM
 function generateShoppingItemsString(shoppingList) {
-  console.log("Generating shopping list element");
-  //--- could intercept and edit item here
   const items = shoppingList.map((item, index) => generateItemElement(item, index));
-
   return items.join("");
 }
 
 //--- this function is TO LONG
 function renderShoppingList() {
   // render the shopping list in the DOM
-  console.log('`renderShoppingList` ran');
   let filteredItems = [...STORE.items];
   let searchedItems = [...STORE.items];
   let searchTerm = STORE.searchTerm;
@@ -69,7 +62,8 @@ function renderShoppingList() {
   }
   
 
-  // decide to insert correct shopping list into DOM
+
+  // decide to insert correct shopping items into DOM
   if (STORE.searchTerm !== '') {
     shoppingListItemsString = generateShoppingItemsString(searchedItems);
   } else if (!STORE.hideCompleted) {
@@ -77,9 +71,6 @@ function renderShoppingList() {
   } else {
     shoppingListItemsString = generateShoppingItemsString(filteredItems);
   }
-  
-
-  console.log(searchedItems);
 
   // insert that HTML into the DOM
   $('.js-shopping-list').html(shoppingListItemsString);
@@ -87,8 +78,7 @@ function renderShoppingList() {
 
 // add shopping item to list
 function addItemToShoppingList(itemName) {
-  console.log(`Adding "${itemName}" to shopping list`);
-  STORE.items.push({ name: itemName, checked: false, edited: false });
+  STORE.items.push({ name: itemName, checked: false });
 }
 
 // edit item name property for STORE dict
@@ -105,19 +95,16 @@ function deleteItem(itemIndex) {
 
 // toggle boolean of item checked property
 function toggleCheckedForListItem(itemIndex) {
-  console.log("Toggling checked property for item at index " + itemIndex);
   STORE.items[itemIndex].checked = !STORE.items[itemIndex].checked;
 }
 
 // toggle boolean for completed shopping item
 function toggleHideCompleted() {
   STORE.hideCompleted = !STORE.hideCompleted;
-  console.log("toggling hideCompleted property for STORE");
 }
 
 // toggle boolean for an edited shopping item
 function toggleEditForListItem(itemIndex) {
-  console.log("toggling edited property for item at index" + itemIndex);
   STORE.items[itemIndex].edited != STORE.items[itemIndex].edited;
 }
 // toggle edit textbox
@@ -125,7 +112,6 @@ function toggleEditTextbox() {
   STORE.hideEdit = !STORE.hideEdit;
   $('.js-edit').toggle(() => {
   });
-  console.log("toggling hideEdit property for STORE");
 }
 
 // return index of current target on generated li
@@ -138,15 +124,14 @@ function getItemIndexFromElement(item) {
 
 // return edit text input
 function getEditText() {
-  const editText = $('.js-edit-text').val();
-  console.log(editText);
+  //itemIndex
+  const editText = $('.js-edit-text:focus').val()
   return editText;
 }
 
 // return search bar value
 function getSearchText() {
   const searchText = $('.js-shopping-list-search').val();
-  console.log(searchText);
   return searchText;
 }
 
@@ -154,7 +139,6 @@ function getSearchText() {
 function handleNewItemSubmit() {
   $('#js-shopping-list-form').submit(function (event) {
     event.preventDefault();
-    console.log('`handleNewItemSubmit` ran');
     const newItemName = $('.js-shopping-list-entry').val();
     $('.js-shopping-list-entry').val('');
     addItemToShoppingList(newItemName);
@@ -175,7 +159,6 @@ function handleSearchClicked() {
 // handle checked item strike-through
 function handleItemCheckClicked() {
   $('.js-shopping-list').on('click', `.js-item-toggle`, event => {
-    console.log('`handleItemCheckClicked` ran');
     const itemIndex = getItemIndexFromElement(event.currentTarget);
     toggleCheckedForListItem(itemIndex);
     renderShoppingList();
@@ -184,22 +167,22 @@ function handleItemCheckClicked() {
 
 // handle edit shopping item
 function handleEditItemClicked() {
-  $('.js-shopping-list').on('click', '.js-item-edit', event => {
-    const itemIndex = getItemIndexFromElement(event.currentTarget);
+  $('.js-item-edit').on('click', event => {
     let editText = STORE.editInput;
     toggleEditTextbox();
-    console.log(STORE.hideEdit)
-    console.log(STORE.editInput)
-    console.log('edit button clicked')
-    if (STORE.hideEdit === false) {
-      editText = getEditText();
-      editItem(itemIndex, editText);
-      toggleEditForListItem(itemIndex);
-      renderShoppingList();
+    if (STORE.hideEdit !== false) {
+      $('.js-shopping-list').on('keydown', '.js-edit-text', event => {
+        if (event.which === 13) {
+          const itemIndex = getItemIndexFromElement(event.currentTarget);
+          editText = getEditText();
+          editItem(itemIndex, editText);
+          toggleEditForListItem(itemIndex);
+          renderShoppingList();
+          STORE.editInput = '';
+        }
+      });
     }
   });
-  
-  console.log('edit button fired')
 }
 
 // handle delete shopping item
@@ -209,17 +192,13 @@ function handleDeleteItemClicked() {
     deleteItem(itemIndex);
     renderShoppingList();
   });
-
-  console.log('`handleDeleteItemClicked` ran')
 }
 
 // handle hide completed items checkbox
 function handleCheckboxClicked() {
   $('.js-shopping-list-checkbox').click(() => {
-    console.log('`handleCheckboxClicked` ran');
     toggleHideCompleted();
     renderShoppingList();
-    console.log(STORE.hideCompleted)
   });
 }
 
