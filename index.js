@@ -31,15 +31,16 @@ function generateItemElement(item, itemIndex, template) {
     </li>`;
 }
 
-// return string for insert into DOM
+// return string for DOM insert
 function generateShoppingItemsString(shoppingList) {
   const items = shoppingList.map((item, index) => generateItemElement(item, index));
   return items.join("");
 }
 
-//--- this function is TO LONG
+
+// render the shopping list in the DOM
 function renderShoppingList() {
-  // render the shopping list in the DOM
+  //--- this function is TO LONG
   let filteredItems = [...STORE.items];
   let searchedItems = [...STORE.items];
   let searchTerm = STORE.searchTerm;
